@@ -330,13 +330,17 @@ public final class SQLiteUtils {
 			Constructor<?> entityConstructor = type.getConstructor();
 
 			if (cursor.moveToFirst()) {
-                /**
-                 * Obtain the columns ordered to fix issue #106 (https://github.com/pardom/ActiveAndroid/issues/106)
-                 * when the cursor have multiple columns with same name obtained from join tables.
-                 */
-                List<String> columnsOrdered = new ArrayList<String>(Arrays.asList(cursor.getColumnNames()));
+				/**
+				 * Obtain the columns ordered to fix issue #106 (https://github.com/pardom/ActiveAndroid/issues/106)
+				 * when the cursor have multiple columns with same name obtained from join tables.
+				 */
+				List<String> columnsOrdered = new ArrayList<String>(Arrays.asList(cursor.getColumnNames()));
 				do {
-					Model entity = Cache.getEntity(type, cursor.getLong(columnsOrdered.indexOf(idName)));
+					Model entity = null;
+					final int columnIndex = columnsOrdered.indexOf(idName);
+					if (columnIndex != -1) {
+						entity = Cache.getEntity(type, cursor.getLong(columnIndex));
+					}
 					if (entity == null) {
 						entity = (T) entityConstructor.newInstance();
 					}
